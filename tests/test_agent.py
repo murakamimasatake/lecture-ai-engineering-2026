@@ -37,3 +37,37 @@ def test_glossary_result_reaches_the_model():
         result = agent.run_sync("RAGとは？")
     returns = _parts(result, ToolReturnPart)
     assert returns and returns[0].tool_name == "search_glossary"
+
+
+def test_ask_reports_token_usage(monkeypatch, capsys):
+    class DummyUsageMetadata:
+        prompt_token_count = 123
+        candidates_token_count = 45
+
+    class DummyResponse:
+        text = "テスト回答"
+        usage_metadata = DummyUsageMetadata()
+
+    class DummyModels:
+        def generate_content(self, model, contents):
+            assert model == "dummy-model"
+            assert contents == "質問"
+            return DummyResponse()
+
+    class DummyClient:
+        def __init__(self, api_key):
+            self.api_key = api_key
+            self.models = DummyModels()
+
+    monkeypatch.setattr("app.ask.MODEL", "dummy-model")
+    monkeypatch.setattr("app.ask.get_api_key", lambda: "dummy-key")
+    monkeypatch.setattr("app.ask.genai.Client", DummyClient)
+
+    from app.ask import ask
+
+    text = ask("質問")
+    captured = capsys.readouterr()
+
+    assert text == "テスト回答"
+    assert "入力トークン数: 123" in captured.out
+    assert "出力トークン数: 45" in captured.out
