@@ -19,7 +19,7 @@ aws_aws___read_documentation({'requests': [{'url': 'https://docs.aws.amazon.com/
 
 <!-- 基礎・実装・発展のどれか1つに取り組めば完了です。 -->
 
-- 取り組んだレベル：基礎 / 実装 / 発展
-- やったこと：
-- 結果：
-- 気づき・疑問：
+- 取り組んだレベル：基礎
+- やったこと：`app/mcp_server.py` の TODO の下に `server.tool()(tools.get_lecture_summary)` を1行書き足して保存し、エージェント側のコードや設定を変えずにツール一覧と質問応答を確認した。
+- 結果：`uv run python -m app.mcp_agent --list-tools` で `glossary_get_lecture_summary` が増えていることを確認し、「第2回では何を学びますか?」の質問に対して `[tool call] glossary_get_lecture_summary({'lecture': 2})` が呼ばれて回答が返ることを確認した。
+- 気づき・疑問：エージェント起動時に MCP サーバーへツール一覧を問い合わせる仕組みのため、サーバー側で公開する関数を1行増やすだけでクライアント側の改修なしに機能拡張できることを確認できた。
